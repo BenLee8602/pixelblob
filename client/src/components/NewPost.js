@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useCurrentUser from "./Auth";
 
+import { BACKEND_API } from "../config.js"
+
 import "../style/content.css";
 import "../style/Login.css";
 
@@ -24,7 +26,7 @@ function NewPost() {
             body: formData
         };
 
-        fetch(`${process.env.REACT_APP_BACKEND_API}/posts`, req)
+        fetch(`${BACKEND_API}/posts`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => res.status === 200 ? Navigate(`/users/${user.name}`) : console.log(res.body))
         .catch(err => console.log(err));

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { BACKEND_API } from "../config.js"
 import useCurrentUser from "./Auth";
 
 import "../style/content.css";
@@ -18,7 +20,7 @@ function ProfileEdit() {
 
     useEffect(() => { const fetchProfile = async () => {
         try {
-            const res = await fetch(`${process.env.REACT_APP_BACKEND_API}/users/${user.name}/profile`);
+            const res = await fetch(`${BACKEND_API}/users/${user.name}/profile`);
             const body = await res.json();
             if (res.status !== 200) return console.log(body);
             setPfp(body.pfp);
@@ -42,7 +44,7 @@ function ProfileEdit() {
             body: formData
         };
 
-        fetch(`${process.env.REACT_APP_BACKEND_API}/users/profile`, req)
+        fetch(`${BACKEND_API}/users/profile`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => res.status === 200 ? Navigate(`/users/${user.name}`) : console.log(res.body))
         .catch(err => console.log(err));
@@ -60,7 +62,7 @@ function ProfileEdit() {
             }
         };
 
-        fetch(`${process.env.REACT_APP_BACKEND_API}/users/profile`, req)
+        fetch(`${BACKEND_API}/users/profile`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => {
             if (res.status !== 200) return console.log(res.body);

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { BACKEND_API } from "../config.js"
 import useCurrentUser from "./Auth";
 
 import "../style/content.css";
@@ -27,7 +29,7 @@ function Register() {
         };
 
         try {
-            const res = await fetch(`${process.env.REACT_APP_BACKEND_API}/users/register`, req);
+            const res = await fetch(`${BACKEND_API}/users/register`, req);
             const body = await res.json();
             if (res.status !== 200) return setErrMsg(body);
             localStorage.setItem("refreshToken", body.refreshToken);

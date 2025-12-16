@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import moment from "moment";
 
+import { BACKEND_API } from "../config.js"
 import useCurrentUser from "./Auth";
+
 import BigList from "./BigList";
 import Comment from "./Comment";
 
@@ -29,7 +31,7 @@ function Post({ data }) {
         };
         
         try {
-            const res = await fetch(`${process.env.REACT_APP_BACKEND_API}/likes/post/${post._id}`, req);
+            const res = await fetch(`${BACKEND_API}/likes/post/${post._id}`, req);
             const body = await res.json();
             if (res.status === 200) return setPost(prev => ({
                 ...prev,
@@ -57,7 +59,7 @@ function Post({ data }) {
             body: JSON.stringify({ text: input })
         };
 
-        fetch(`${process.env.REACT_APP_BACKEND_API}/comments/post/${post._id}`, req)
+        fetch(`${BACKEND_API}/comments/post/${post._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => res.status === 200 ? setComments([res.body, ...comments]) : console.log(res.body))
         .catch(err => console.log(err));
@@ -76,7 +78,7 @@ function Post({ data }) {
             body: JSON.stringify({ caption: input })
         };
 
-        fetch(`${process.env.REACT_APP_BACKEND_API}/posts/${post._id}`, req)
+        fetch(`${BACKEND_API}/posts/${post._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => res.status === 200 ? setPost({ ...post, caption: input }) : console.log(res.body))
         .catch(err => console.log(err));
@@ -96,7 +98,7 @@ function Post({ data }) {
             }
         };
 
-        fetch(`${process.env.REACT_APP_BACKEND_API}/posts/${post._id}`, req)
+        fetch(`${BACKEND_API}/posts/${post._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => res.status === 200 ? setPost(null) : console.log(res.body))
         .catch(err => console.log(err));

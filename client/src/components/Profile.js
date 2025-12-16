@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
+import { BACKEND_API } from "../config.js"
 import useCurrentUser from "./Auth";
+
 import BigList from "./BigList";
 import User from "./User";
 
@@ -28,7 +30,7 @@ function Profile() {
 
     useEffect(() => { const fetchProfile = async () => {
         setView("posts");
-        const url = `${process.env.REACT_APP_BACKEND_API}/users/${name}/profile`;
+        const url = `${BACKEND_API}/users/${name}/profile`;
         try {
             const res = await fetch(url + (user ? `?cur=${user.id}` : ``));
             const body = await res.json();
@@ -40,7 +42,7 @@ function Profile() {
 
     const handleFollow = async () => {
         try {
-            const res = await fetch(`${process.env.REACT_APP_BACKEND_API}/follows/${profile._id}`, req);
+            const res = await fetch(`${BACKEND_API}/follows/${profile._id}`, req);
             const body = await res.json();
             if (res.status === 200)  return setProfile({ // unfollowed
                 ...profile,

@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
+
+import { BACKEND_API } from "../config.js";
 import useCurrentUser from "./Auth";
 
 
@@ -21,7 +23,7 @@ function BigList({ route, req = undefined, map, container = null }) {
         if (!goodRef.current) return;
         setGood(false);
         try {
-            const url = `${process.env.REACT_APP_BACKEND_API}/${route}?page=${pageRef.current}&start=${start}`;
+            const url = `${BACKEND_API}/${route}?page=${pageRef.current}&start=${start}`;
             const res = await fetch(url + (user ? `&cur=${user.id}` : ``), req);
             const body = await res.json();
             if (res.status !== 200 || body.length === 0) return setGood(false);
