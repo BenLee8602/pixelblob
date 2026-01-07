@@ -1,14 +1,15 @@
 const request = require("supertest");
 
-const app = require("./config/testapp");
-const db = require("./config/db");
-const img = require("./config/s3");
+const app = require("../src/app");
+const auth = require("../src/config/auth");
+const db = require("../src/config/db");
+const img = require("../src/config/img");
 
 
-beforeAll(db.start);
-afterAll(db.stop);
+beforeAll(async () => await db.connect());
+afterAll(async () => await db.disconnect());
 
-beforeEach(async () => {
+afterEach(async () => {
     await db.resetData();
     img.resetImages();
 });
@@ -145,7 +146,7 @@ describe("get new access token", () => {
             refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0Yzg2ZDJlYzA1OWRmZjhlNjJiMjg2NiIsIm5hbWUiOiJiZW4iLCJpYXQiOjE2OTA5MjQzMjd9.B4W0EqfHXkZVfHXZuhYeBHaPtHMsRLKOjuBp43jsYVA"
         });
         expect(res.statusCode).toBe(401);
-        expect(res.body).toBe("old refresh token");
+        expect(res.body).toBe("invalid refresh token");
         expect(res.body.accessToken).toBeUndefined();
         expect(res.body.user).toBeUndefined();
     });
@@ -191,7 +192,8 @@ describe("get one user's data", () => {
 
 
     it("should pass if user exists", async () => {
-        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
+        const accessToken = auth.createAccessToken(
+            "63cf278abc581a025767848d", "ben");
         const res = await request(app).get("/api/users/ben/profile").query({
             cur: "63cf27d7bc581a0257678496"
         }).set({
@@ -202,7 +204,7 @@ describe("get one user's data", () => {
         const expected = {
             _id: "63cf278abc581a025767848d",
             name: "ben",
-            pfp: "linkToBensProfilePicture",
+            pfp: "http://localhost:3000/img/bensProfilePicture",
             nick: "benjamin",
             bio: "hi my name is ben",
             postCount: 2,
@@ -219,7 +221,8 @@ describe("get one user's data", () => {
 
 describe("edit user profile", () => {
     it("should only update nickname and bio if no pfp given", async () => {
-        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
+        const accessToken = auth.createAccessToken(
+            "63cf27d7bc581a0257678496", "someguy");
         const res = await request(app).put("/api/users/profile").set({
             "Authorization": "Bearer " + accessToken
         }).send({
@@ -236,7 +239,8 @@ describe("edit user profile", () => {
 
 
     it("should replace old pfp if it exists", async () => {
-        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
+        const accessToken = auth.createAccessToken(
+            "63cf278abc581a025767848d", "ben");
         const res = await request(app).put("/api/users/profile").set({
             "Authorization": "Bearer " + accessToken
         }).attach("image", Buffer.from("test 3 pfp buffer"), "image").field({
@@ -253,7 +257,8 @@ describe("edit user profile", () => {
 
 
     it("should create new pfp if not exists", async () => {
-        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
+        const accessToken = auth.createAccessToken(
+            "63cf27d7bc581a0257678496", "someguy");
         const res = await request(app).put("/api/users/profile").set({
             "Authorization": "Bearer " + accessToken
         }).attach("image", Buffer.from("test 4 pfp buffer"), "image").field({
@@ -272,7 +277,8 @@ describe("edit user profile", () => {
 
 describe("delete user profile", () => {
     it("should delete user and all related data", async () => {
-        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
+        const accessToken = auth.createAccessToken(
+            "63cf278abc581a025767848d", "ben");
         const res = await request(app).delete("/api/users/profile").set({
             "Authorization": "Bearer " + accessToken
         }).send();

@@ -1,14 +1,15 @@
 const request = require("supertest");
 
-const app = require("./config/testapp");
-const db = require("./config/db");
-const img = require("./config/s3");
+const app = require("../src/app");
+const auth = require("../src/config/auth");
+const db = require("../src/config/db");
+const img = require("../src/config/img");
 
 
-beforeAll(db.start);
-afterAll(db.stop);
+beforeAll(async () => await db.connect());
+afterAll(async () => await db.disconnect());
 
-beforeEach(async () => {
+afterEach(async () => {
     await db.resetData();
     img.resetImages();
 });
@@ -41,10 +42,10 @@ describe("get post by id", () => {
             author: {
                 _id: "63cf278abc581a025767848d",
                 name: "ben",
-                pfp: "linkToBensProfilePicture",
+                pfp: "http://localhost:3000/img/bensProfilePicture",
                 nick: "benjamin"
             },
-            image: "linkToPost1Image",
+            image: "http://localhost:3000/img/post1Image",
             caption: "a cool caption",
             likeCount: 2,
             commentCount: 3,
@@ -76,7 +77,8 @@ describe("search posts", () => {
 
 describe("create new post", () => {
     it("should add the post to the database", async () => {
-        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
+        const accessToken = auth.createAccessToken(
+            "63cf27d7bc581a0257678496", "someguy");
         const res = await request(app).post("/api/posts").set({
             "Authorization": "Bearer " + accessToken
         }).attach("image", Buffer.from("new post image buffer"), "image").field({
@@ -95,7 +97,8 @@ describe("create new post", () => {
 
 describe("edit a post", () => {
     it("should fail if caption is not given", async () => {
-        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
+        const accessToken = auth.createAccessToken(
+            "63cf278abc581a025767848d", "ben");
         const res = await request(app).put("/api/posts/63cf287bbc581a02576784aa").set({
             "Authorization": "Bearer " + accessToken
         }).send({
@@ -106,7 +109,8 @@ describe("edit a post", () => {
 
 
     it("should fail if post doesnt exist", async () => {
-        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
+        const accessToken = auth.createAccessToken(
+            "63cf27d7bc581a0257678496", "someguy");
         const res = await request(app).put("/api/posts/01abe3720d6e382d80970673").set({
             "Authorization": "Bearer " + accessToken
         }).send({
@@ -117,7 +121,8 @@ describe("edit a post", () => {
 
 
     it("should update a valid post given a caption", async () => {
-        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
+        const accessToken = auth.createAccessToken(
+            "63cf278abc581a025767848d", "ben");
         const res = await request(app).put("/api/posts/63cf287bbc581a02576784aa").set({
             "Authorization": "Bearer " + accessToken
         }).send({
@@ -133,7 +138,8 @@ describe("edit a post", () => {
 
 describe("delete a post", () => {
     it("should fail if post doesnt exist", async () => {
-        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
+        const accessToken = auth.createAccessToken(
+            "63cf278abc581a025767848d", "ben");
         const res = await request(app).delete("/api/posts/cb760905e8fa1745e1457e0b").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -142,7 +148,8 @@ describe("delete a post", () => {
 
 
     it("should delete post if exists", async () => {
-        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
+        const accessToken = auth.createAccessToken(
+            "63cf278abc581a025767848d", "ben");
         const res = await request(app).delete("/api/posts/63cf2bb1bc581a02576784e8").set({
             "Authorization": "Bearer " + accessToken
         }).send();

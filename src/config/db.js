@@ -1,21 +1,22 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const Post  = require("../models/post");
-const Token = require("../models/token");
-const User  = require("../models/user");
-const Comment = require("../models/comment");
-const Follow = require("../models/follow");
-const Like = require("../models/like");
+import posts from "../models/post.js";
+import tokens from "../models/token.js";
+import users from "../models/user.js";
+import comments from "../models/comment.js";
+import follows from "../models/follow.js";
+import likes from "../models/like.js";
+const schemas = { posts, tokens, users, comments, follows, likes };
 
-const pageSize = 16;
+import isProd from "./isProd.js";
+import dbProd from "./prod/db.js";
+import dbDev from "./dev/db.js";
+const db = isProd ? dbProd : dbDev;
 
-module.exports = {
-    objectId: (id) => new mongoose.Types.ObjectId(id),
-    posts: Post,
-    tokens: Token,
-    users: User,
-    comments: Comment,
-    follows: Follow,
-    likes: Like,
-    pageSize
+export default {
+    ...db,
+    ...schemas,
+    pageSize: 16,
+    objectId: id => new mongoose.Types.ObjectId(id)
 };
+

@@ -1,24 +1,30 @@
-const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
-const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+import crypto from "crypto";
+import {
+    S3Client,
+    GetObjectCommand,
+    PutObjectCommand,
+    DeleteObjectCommand
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-const crypto = require("crypto");
+import isProd from "../isProd.js";
 
 
-const s3client = new S3Client({
+const s3client = isProd ? new S3Client({
     region: process.env.AWS_BUCKET_REGION,
     credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
     }
-});
+}) : null;
+
+const imageUrlLifetime = 600;
 
 
 function generateImageName() {
     return crypto.randomBytes(32).toString("hex");
 }
 
-
-const imageUrlLifetime = 600;
 
 async function getImage(imageName) {
     if (!imageName) return "";
@@ -51,7 +57,7 @@ async function deleteImage(imageName) {
 }
 
 
-module.exports = {
+export default {
     generateImageName,
     getImage,
     putImage,

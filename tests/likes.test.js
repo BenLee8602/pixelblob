@@ -1,14 +1,15 @@
 const request = require("supertest");
 
-const app = require("./config/testapp");
-const db = require("./config/db");
-const img = require("./config/s3");
+const app = require("../src/app");
+const auth = require("../src/config/auth");
+const db = require("../src/config/db");
+const img = require("../src/config/img");
 
 
-beforeAll(db.start);
-afterAll(db.stop);
+beforeAll(async () => await db.connect());
+afterAll(async () => await db.disconnect());
 
-beforeEach(async () => {
+afterEach(async () => {
     await db.resetData();
     img.resetImages();
 });
@@ -16,7 +17,8 @@ beforeEach(async () => {
 
 describe("smash the like button", () => {
     it("should fail if parent type is invalid", async () => {
-        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
+        const accessToken = auth.createAccessToken(
+            "63cf27d7bc581a0257678496", "someguy");
         const res = await request(app).put("/api/likes/someInvalidType/63cf2c5cbc581a0257678503").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -25,7 +27,8 @@ describe("smash the like button", () => {
 
 
     it("should fail if parent doesnt exist", async () => {
-        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
+        const accessToken = auth.createAccessToken(
+            "63cf278abc581a025767848d", "ben");
         const res = await request(app).put("/api/likes/post/5fbca0a35e06b136c429a22a").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -34,7 +37,8 @@ describe("smash the like button", () => {
 
 
     it("should like if not already liked", async () => {
-        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
+        const accessToken = auth.createAccessToken(
+            "63cf278abc581a025767848d", "ben");
         const res = await request(app).put("/api/likes/comment/63cf2c5cbc581a0257678503").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -52,7 +56,8 @@ describe("smash the like button", () => {
 
 
     it("should unlike if already liked", async () => {
-        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
+        const accessToken = auth.createAccessToken(
+            "63cf27d7bc581a0257678496", "someguy");
         const res = await request(app).put("/api/likes/post/63cf287bbc581a02576784aa").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -78,7 +83,7 @@ describe("get likes", () => {
         const expected = [{
             _id: "63cf278abc581a025767848d",
             name: "ben",
-            pfp: "linkToBensProfilePicture",
+            pfp: "http://localhost:3000/img/bensProfilePicture",
             nick: "benjamin"
         }, {
             _id: "63cf27d7bc581a0257678496",

@@ -10,4 +10,5 @@ function getPageInfo(req, res, next) {
 }
 
 
-module.exports = { getPageInfo };
+export { getPageInfo };
+
