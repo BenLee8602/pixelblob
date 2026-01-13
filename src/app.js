@@ -1,35 +1,38 @@
-const path = require("path");
-const express = require("express");
-const cors = require("cors");
+import path from "path";
+import os from "os";
+import express from "express";
+import cors from "cors";
 
-const usersRouter = require("./routes/users");
-const postsRouter = require("./routes/posts");
-const commentsRouter = require("./routes/comments");
-const followsRouter = require("./routes/follows");
-const likesRouter = require("./routes/likes");
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-
-function createApp(database, imageStorage) {
-    const app = express();
-
-    app.use(express.urlencoded({ extended: true, limit: "50mb" }));
-    app.use(express.json({ limit: "50mb" }));
-    app.use(express.static("client/build"));
-    
-    app.use(cors({ origin: "*" }));
-    
-    app.use("/api/users", usersRouter(database, imageStorage));
-    app.use("/api/posts", postsRouter(database, imageStorage));
-    app.use("/api/comments", commentsRouter(database, imageStorage));
-    app.use("/api/follows", followsRouter(database, imageStorage));
-    app.use("/api/likes", likesRouter(database, imageStorage));
-    
-    app.get("*", (req, res) => {
-        res.sendFile(path.resolve(__dirname, "..", "client", "build", "index.html"));
-    });
-
-    return app;
-}
+import usersRouter from "./routes/users.js";
+import postsRouter from "./routes/posts.js";
+import commentsRouter from "./routes/comments.js";
+import followsRouter from "./routes/follows.js";
+import likesRouter from "./routes/likes.js";
 
 
-module.exports = createApp;
+const app = express();
+
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.static("client/build"));
+app.use(express.static(path.join(os.tmpdir(), "pixelblob", "static")));
+
+app.use(cors({ origin: "*" }));
+
+app.use("/api/users", usersRouter);
+app.use("/api/posts", postsRouter);
+app.use("/api/comments", commentsRouter);
+app.use("/api/follows", followsRouter);
+app.use("/api/likes", likesRouter);
+
+app.get("/{*splat}", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "..", "client", "build", "index.html"));
+});
+
+
+export default app;
+

@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 
+import { BACKEND_API } from "../config.js"
+
 
 const UserContext = createContext();
 
@@ -31,7 +33,7 @@ export function CurrentUser({ children }) {
             };
 
             try {
-                const res = await fetch(`${process.env.REACT_APP_BACKEND_API}/users/refresh`, req);
+                const res = await fetch(`${BACKEND_API}/users/refresh`, req);
                 const body = await res.json();
                 if (res.status === 200) {
                     localStorage.setItem("accessToken", body.accessToken);

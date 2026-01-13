@@ -1,11 +1,11 @@
 # pixelblob
 pixelblob is a full-stack social media web app for sharing images.  
-see the app at [pixelblob.site](https://pixelblob.site)  
-
+it is not currently deployed, but you can run it locally.
+see installation guide below.
 
 ## technologies
-- backend: javascript, express, mongoose, aws s3 sdk, bcrypt, jsonwebtoken, multer
-- frontend: javascript, react, html, css
+- backend: javascript, express, mongoose, aws s3 sdk
+- frontend: jsx, react, html, css
 - storage: mongodb, aws s3
 - test: jest, supertest, mongomemoryserver
 
@@ -31,7 +31,7 @@ see the app at [pixelblob.site](https://pixelblob.site)
 
 ### testability
 - full test coverage over all rest api endpoints
-- rest api routers use dependency injection for mongodb and aws s3, so mock dbs can be used during testing
+- rest api routers use dependency injection for mongodb and aws s3, so mock dbs can be used during testing and development
 
 
 ## installation
@@ -42,7 +42,8 @@ cd pixelblob
 ```
 
 ### configuration
-two .env files are required, one for the frontend, and backend  
+to run the app in prod, two .env files are required. one for the frontend, and backend.
+if any env vars are missing, the app can still run using a mock db and s3.
 be sure to keep the contents of these files secret for security purposes
 
 #### backend
@@ -68,21 +69,38 @@ AWS_SECRET_ACCESS_KEY=yr0fz8AalGRbmoZLE7o/LSxYDfIBdmbQ97AgZn5G
 ```
 
 #### frontend
-- `REACT_APP_BACKEND_API` url to call backend api endpoints
+- `VITE_BACKEND_API` url to call backend api endpoints
 
 example contents of `pixelblob/client/.env`
 ```
-REACT_APP_BACKEND_API=http://localhost:3000/api
+VITE_BACKEND_API=http://localhost:3000/api
 ```
 
 ### build
-install dependencies, build, and run
+install packages
 ```
-npm run build
-node server.js
+npm i
+npm i --prefix client
+```
+
+build react app
+```
+npm run build --prefix client
+```
+
+start the server and go to `http://localhost:3000` to see the app!
+```
+npm start
+```
+
+for development, i recommend running the frontend and backend separately
+```
+npm run dev
+npm run dev --prefix client
 ```
 
 run rest api tests
 ```
 npm run test
 ```
+

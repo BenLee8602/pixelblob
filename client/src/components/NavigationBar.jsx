@@ -1,6 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
+
+import { BACKEND_API } from "../config.js"
 import useCurrentUser from "./Auth";
+
 import "../style/NavigationBar.css";
 
 function NavigationBar() {
@@ -14,7 +17,7 @@ function NavigationBar() {
             body: JSON.stringify({ refreshToken: localStorage.getItem("refreshToken") })
         };
 
-        fetch(`${process.env.REACT_APP_BACKEND_API}/users/logout`, req)
+        fetch(`${BACKEND_API}/users/logout`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => { if (res.status !== 200) console.log(res.body); })
         .catch(err => console.log(err));

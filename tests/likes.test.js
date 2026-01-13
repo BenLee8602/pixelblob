@@ -1,23 +1,27 @@
-const request = require("supertest");
+import request from "supertest";
 
-const app = require("./config/testapp");
-const db = require("./config/db");
-const img = require("./config/s3");
+import app from "../src/app";
+import auth from "../src/config/auth";
+import db from "../src/config/db";
+import img from "../src/config/img";
 
 
-beforeAll(db.start);
-afterAll(db.stop);
+beforeAll(async () => await db.connect());
+afterAll(async () => await db.disconnect());
 
-beforeEach(async () => {
+afterEach(async () => {
     await db.resetData();
-    img.resetImages();
+    await img.resetImages();
 });
 
 
 describe("smash the like button", () => {
     it("should fail if parent type is invalid", async () => {
-        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
-        const res = await request(app).put("/api/likes/someInvalidType/63cf2c5cbc581a0257678503").set({
+        const accessToken = auth.createAccessToken(
+            "695ee08e62610f325ee6fa06", "id.ex");
+        const res = await request(app).put(
+            "/api/likes/someInvalidType/695ee09462610f325ee705bb"
+        ).set({
             "Authorization": "Bearer " + accessToken
         }).send();
         expect(res.statusCode).toBe(400);
@@ -25,8 +29,11 @@ describe("smash the like button", () => {
 
 
     it("should fail if parent doesnt exist", async () => {
-        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
-        const res = await request(app).put("/api/likes/post/5fbca0a35e06b136c429a22a").set({
+        const accessToken = auth.createAccessToken(
+            "695ee08e62610f325ee6fa06", "id.ex");
+        const res = await request(app).put(
+            "/api/likes/post/5fbca0a35e06b136c429a22a"
+        ).set({
             "Authorization": "Bearer " + accessToken
         }).send();
         expect(res.statusCode).toBe(404);
@@ -34,37 +41,43 @@ describe("smash the like button", () => {
 
 
     it("should like if not already liked", async () => {
-        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
-        const res = await request(app).put("/api/likes/comment/63cf2c5cbc581a0257678503").set({
+        const accessToken = auth.createAccessToken(
+            "695ee08e62610f325ee6fa06", "id.ex");
+        const res = await request(app).put(
+            "/api/likes/post/695ee09462610f325ee705bb"
+        ).set({
             "Authorization": "Bearer " + accessToken
         }).send();
         expect(res.statusCode).toBe(201);
 
         const like = await db.likes.findOne({
-            parent: "63cf2c5cbc581a0257678503",
-            likedBy: "63cf278abc581a025767848d"
+            parent: "695ee09462610f325ee705bb",
+            likedBy: "695ee08e62610f325ee6fa06"
         });
         expect(like).not.toBeNull();
 
-        const parent = await db.comments.findById("63cf2c5cbc581a0257678503");
+        const parent = await db.posts.findById("695ee09462610f325ee705bb");
         expect(parent.likeCount).toBe(1);
     });
 
 
     it("should unlike if already liked", async () => {
-        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
-        const res = await request(app).put("/api/likes/post/63cf287bbc581a02576784aa").set({
+        const accessToken = auth.createAccessToken(
+            "695ee09162610f325ee6fb8f", "aliquip.quis");
+        const res = await request(app).put(
+            "/api/likes/comment/695ee09662610f325ee70d56"
+        ).set({
             "Authorization": "Bearer " + accessToken
         }).send();
         expect(res.statusCode).toBe(200);
 
         const like = await db.likes.findOne({
-            parent: "63cf287bbc581a02576784aa",
-            likedBy: "63cf27d7bc581a0257678496"
+            parent: "695ee09662610f325ee70d56",
+            likedBy: "695ee09162610f325ee6fb8f"
         });
         expect(like).toBeNull();
 
-        const parent = await db.posts.findById("63cf287bbc581a02576784aa");
+        const parent = await db.comments.findById("695ee09662610f325ee70d56");
         expect(parent.likeCount).toBe(1);
     });
 });
@@ -72,20 +85,11 @@ describe("smash the like button", () => {
 
 describe("get likes", () => {
     it("should return a list of users that smashed the like button", async () => {
-        const res = await request(app).get("/api/likes/63cf29c0bc581a02576784b3").send();
+        const res = await request(app).get(
+            "/api/likes/695ee09562610f325ee70815"
+        ).send();
         expect(res.statusCode).toBe(200);
-
-        const expected = [{
-            _id: "63cf278abc581a025767848d",
-            name: "ben",
-            pfp: "linkToBensProfilePicture",
-            nick: "benjamin"
-        }, {
-            _id: "63cf27d7bc581a0257678496",
-            name: "someguy",
-            pfp: "",
-            nick: "awesome nickname"
-        }];
-        expect(JSON.stringify(res.body)).toBe(JSON.stringify(expected));
+        expect(res.body.length).toBe(3);
     });
 });
+

@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import moment from "moment";
 
+import { BACKEND_API } from "../config.js"
 import useCurrentUser from "./Auth";
+
 import BigList from "./BigList";
 
 import "../style/Comment.css";
@@ -29,7 +31,7 @@ function Comment({ data, showReplies }) {
         };
         
         try {
-            const res = await fetch(`${process.env.REACT_APP_BACKEND_API}/likes/comment/${comment._id}`, req);
+            const res = await fetch(`${BACKEND_API}/likes/comment/${comment._id}`, req);
             const body = await res.json();
             if (res.status === 200) return setComment(prev => ({
                 ...prev,
@@ -56,7 +58,7 @@ function Comment({ data, showReplies }) {
             body: JSON.stringify({ text: input })
         };
 
-        fetch(`${process.env.REACT_APP_BACKEND_API}/comments/comment/${comment._id}`, req)
+        fetch(`${BACKEND_API}/comments/comment/${comment._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => res.status === 200 ? setReplies([res.body, ...replies]) : console.log(res.body))
         .catch(err => console.log(err));
@@ -73,7 +75,7 @@ function Comment({ data, showReplies }) {
             body: JSON.stringify({ text: input })
         };
 
-        fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}`, req)
+        fetch(`${BACKEND_API}/comments/${comment._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => res.status === 200 ? setComment({ ...comment, text: input }) : console.log(res.body))
         .catch(err => console.log(err));
@@ -93,7 +95,7 @@ function Comment({ data, showReplies }) {
             }
         };
 
-        fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}`, req)
+        fetch(`${BACKEND_API}/comments/${comment._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => res.status === 200 ? setComment(null) : console.log(res.body))
         .catch(err => console.log(err));
