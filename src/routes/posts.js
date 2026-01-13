@@ -114,7 +114,7 @@ router.get("/search/:query", getPageInfo, async (req, res) => {
 
 // create new post
 router.post("/", requireLogin, upload.single("image"), async (req, res) => {
-    const caption = req.body.caption || "";
+    const caption = req.body?.caption ?? "";
     try {
         const imageName = img.generateImageName();
         await img.putImage(imageName, req.file.buffer, req.file.mimetype);
@@ -140,7 +140,7 @@ router.post("/", requireLogin, upload.single("image"), async (req, res) => {
 
 // edit a post
 router.put("/:id", requireLogin, async (req, res) => {
-    const caption = req.body.caption;
+    const caption = req.body?.caption;
     if (!caption) return res.status(400).json("new caption missing");
     try {
         const post = await db.posts.findOneAndUpdate(

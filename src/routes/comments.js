@@ -48,7 +48,7 @@ router.get("/:parentId", getPageInfo, async (req, res) => {
 
 // create comment
 router.post("/:parentType/:parentId", requireLogin, async (req, res) => {
-    const text = req.body.text;
+    const text = req.body?.text;
     if (!text) return res.status(400).json("missing comment text");
 
     const parentType = req.params.parentType;
@@ -88,7 +88,7 @@ router.post("/:parentType/:parentId", requireLogin, async (req, res) => {
 
 // edit comment
 router.put("/:id", requireLogin, async (req, res) => {
-    const text = req.body.text;
+    const text = req.body?.text;
     if (!text) return res.status(400).send("new text missing");
     try {
         const comment = await db.comments.findOneAndUpdate(

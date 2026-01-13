@@ -29,7 +29,7 @@ app.use("/api/comments", commentsRouter);
 app.use("/api/follows", followsRouter);
 app.use("/api/likes", likesRouter);
 
-app.get("*", (req, res) => {
+app.get("/{*splat}", (req, res) => {
     res.sendFile(path.resolve(__dirname, "..", "client", "build", "index.html"));
 });
 

@@ -19,9 +19,10 @@ const router = express.Router();
 
 // register new user
 router.post("/register", async (req, res) => {
-    const name = req.body.name;
-    const pass = req.body.pass;
-    if (!name || !pass) return res.status(400).json("missing username or password");
+    const name = req.body?.name;
+    const pass = req.body?.pass;
+    if (!name || !pass)
+        return res.status(400).json("missing username or password");
 
     try {
         const doc = await db.users.findOne({
@@ -49,8 +50,8 @@ router.post("/register", async (req, res) => {
 
 // login as user
 router.post("/login", async (req, res) => {
-    const name = req.body.name;
-    const pass = req.body.pass;
+    const name = req.body?.name;
+    const pass = req.body?.pass;
     if (!name || !pass) return res.status(400).json("missing username or password");
 
     try {
@@ -73,7 +74,7 @@ router.post("/login", async (req, res) => {
 
 // get new access token
 router.post("/refresh", async (req, res) => {
-    const refreshToken = req.body.refreshToken;
+    const refreshToken = req.body?.refreshToken;
     if (!refreshToken) return res.status(400).json("missing refresh token");
     try {
         const user = auth.verifyRefreshToken(refreshToken);
@@ -93,7 +94,7 @@ router.post("/refresh", async (req, res) => {
 
 // logout user
 router.delete("/logout", async (req, res) => {
-    const refreshToken = req.body.refreshToken;
+    const refreshToken = req.body?.refreshToken;
     if (!refreshToken) return res.status(400).json("missing refresh token");
     try {
         const deleted = await db.tokens.findOneAndDelete({ token: refreshToken });
@@ -152,8 +153,8 @@ router.get("/:name/profile", async (req, res) => {
 
 // edit the logged in user's profile
 router.put("/profile", requireLogin, upload.single("image"), async (req, res) => {
-    const nick = req.body.nick || "";
-    const bio = req.body.bio || "";
+    const nick = req.body?.nick ?? "";
+    const bio = req.body?.bio ?? "";
 
     try {
         const user = await db.users.findByIdAndUpdate(

@@ -46,7 +46,7 @@ describe("register user", () => {
 
 
     it("should pass given password and unique username", async () => {
-        const tokenCountBefore = await db.tokens.count({});
+        const tokenCountBefore = await db.tokens.countDocuments({});
 
         const res = await request(app).post(
             "/api/users/register"
@@ -63,14 +63,14 @@ describe("register user", () => {
         expect(newUser).toBeDefined();
         expect(newUser.name).toBe("ben");
         expect(newUser.pass).not.toBe("asd456"); // should be hashed
-        expect(await db.tokens.count({})).toBe(tokenCountBefore + 1);
+        expect(await db.tokens.countDocuments({})).toBe(tokenCountBefore + 1);
     });
 });
 
 
 describe("login user", () => {
     it("should fail if username or password is missing", async () => {
-        const tokenCountBefore = await db.tokens.count({});
+        const tokenCountBefore = await db.tokens.countDocuments({});
 
         const res = await request(app).post(
             "/api/users/login"
@@ -82,12 +82,12 @@ describe("login user", () => {
         expect(res.body.refreshToken).toBeUndefined();
         expect(res.body.accessToken).toBeUndefined();
 
-        expect(await db.tokens.count({})).toBe(tokenCountBefore);
+        expect(await db.tokens.countDocuments({})).toBe(tokenCountBefore);
     });
 
 
     it("should fail if user is not found", async () => {
-        const tokenCountBefore = await db.tokens.count({});
+        const tokenCountBefore = await db.tokens.countDocuments({});
 
         const res = await request(app).post(
             "/api/users/login"
@@ -100,12 +100,12 @@ describe("login user", () => {
         expect(res.body.refreshToken).toBeUndefined();
         expect(res.body.accessToken).toBeUndefined();
 
-        expect(await db.tokens.count({})).toBe(tokenCountBefore);
+        expect(await db.tokens.countDocuments({})).toBe(tokenCountBefore);
     });
 
 
     it("should fail if password is incorrect", async () => {
-        const tokenCountBefore = await db.tokens.count({});
+        const tokenCountBefore = await db.tokens.countDocuments({});
 
         const res = await request(app).post(
             "/api/users/login"
@@ -118,12 +118,12 @@ describe("login user", () => {
         expect(res.body.refreshToken).toBeUndefined();
         expect(res.body.accessToken).toBeUndefined();
 
-        expect(await db.tokens.count({})).toBe(tokenCountBefore);
+        expect(await db.tokens.countDocuments({})).toBe(tokenCountBefore);
     });
 
 
     it("should pass given valid credentials", async () => {
-        const tokenCountBefore = await db.tokens.count({});
+        const tokenCountBefore = await db.tokens.countDocuments({});
 
         const res = await request(app).post(
             "/api/users/login"
@@ -136,7 +136,7 @@ describe("login user", () => {
         expect(res.body.refreshToken).toBeDefined();
         expect(res.body.accessToken).toBeDefined();
 
-        expect(await db.tokens.count({})).toBe(tokenCountBefore + 1);
+        expect(await db.tokens.countDocuments({})).toBe(tokenCountBefore + 1);
     });
 });
 
@@ -327,20 +327,20 @@ describe("delete user profile", () => {
         expect(await db.users.findOne({
             name: "ex.cupidatat"
         })).toBeNull();
-        expect(await db.posts.find({
+        expect(await db.posts.countDocuments({
             author: "695ee09062610f325ee6fb10"
-        }).count()).toBe(0);
-        expect(await db.comments.find({
+        })).toBe(0);
+        expect(await db.comments.countDocuments({
             author: "695ee09062610f325ee6fb10"
-        }).count()).toBe(0);
-        expect(await db.follows.find({
+        })).toBe(0);
+        expect(await db.follows.countDocuments({
             follower: "695ee09062610f325ee6fb10"
-        }).count()).toBe(0);
-        expect(await db.follows.find({
+        })).toBe(0);
+        expect(await db.follows.countDocuments({
             following: "695ee09062610f325ee6fb10"
-        }).count()).toBe(0);
-        expect(await db.likes.find({
+        })).toBe(0);
+        expect(await db.likes.countDocuments({
             likedBy: "695ee09062610f325ee6fb10"
-        }).count()).toBe(0);
+        })).toBe(0);
     });
 });

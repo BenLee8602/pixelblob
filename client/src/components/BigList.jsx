@@ -15,8 +15,8 @@ function BigList({ route, req = undefined, map, container = null }) {
     const goodRef = useRef(good);
     const bottom = useRef(null);
 
-    useEffect(() => pageRef.current = page, [page]);
-    useEffect(() => goodRef.current = good, [good]);
+    useEffect(() => { pageRef.current = page }, [page]);
+    useEffect(() => { goodRef.current = good }, [good]);
 
 
     const loadMore = async () => {
